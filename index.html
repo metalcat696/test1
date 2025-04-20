@@ -5,14 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Travel Крым - Виртуальные экскурсии</title>
 
-  <!-- VK Bridge -->
-  <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js"></script>
-
-  <!-- VKUI -->
-  <link href="https://unpkg.com/@vkontakte/vkui@5/dist/vkui.css" rel="stylesheet" />
-  <script src="https://unpkg.com/@vkontakte/icons@1.92.0/dist/index.umd.js"></script>
-  <script src="https://unpkg.com/@vkontakte/vkui@5/dist/vkui.umd.js"></script>
-
   <style>
     * {
       box-sizing: border-box;
@@ -117,8 +109,28 @@
       margin-bottom: 0.5rem;
     }
 
-    .vkui-button-wrapper {
-      margin-top: 0.5rem;
+    .custom-button {
+      background-color: #0077ff;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .custom-button:hover {
+      background-color: #005bcc;
+    }
+
+    .custom-button svg {
+      width: 20px;
+      height: 20px;
+      fill: white;
     }
 
     .scroll-button {
@@ -199,22 +211,11 @@
         <img src="${image}" alt="${title}" loading="lazy" />
         <div class="card-title">${title}</div>
         <div class="card-description">${description}</div>
-        <div class="vkui-button-wrapper"></div>
+        <button class="custom-button">
+          <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          Подробнее
+        </button>
       `;
-      const buttonWrapper = card.querySelector('.vkui-button-wrapper');
-
-      const Button = vkui.Button;
-      const Icon28Play = vkIcons.Icon28Play;
-
-      const btn = new Button({
-        size: "m",
-        appearance: "accent",
-        before: vkui.createElement(Icon28Play, null),
-        children: "Подробнее"
-      });
-
-      buttonWrapper.appendChild(btn);
-
       cardsContainer.appendChild(card);
     });
 
@@ -222,9 +223,6 @@
       const scrollAmount = 270;
       cardsContainer.scrollBy({ left: scrollAmount * direction, behavior: 'smooth' });
     }
-
-    // VK Bridge init
-    vkBridge.send("VKWebAppInit");
   </script>
 </body>
 </html>
