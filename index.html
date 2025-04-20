@@ -3,74 +3,80 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Travel Крым - Виртуальные экскурсии по Крыму</title>
+  <title>Travel Крым - Виртуальные экскурсии</title>
 
-  <!-- Шрифты -->
-  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700&display=swap" rel="stylesheet">
+  <!-- VK Bridge -->
+  <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js"></script>
 
-  <!-- React и VKUI -->
-  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-  <script src="https://unpkg.com/@vkontakte/vkui@5.30.2/dist/cjs/index.umd.min.js"></script>
-  <script src="https://unpkg.com/@vkontakte/icons@1.97.0/dist/index.umd.js"></script>
+  <!-- VKUI -->
+  <link href="https://unpkg.com/@vkontakte/vkui@5/dist/vkui.css" rel="stylesheet" />
+  <script src="https://unpkg.com/@vkontakte/icons@1.92.0/dist/index.umd.js"></script>
+  <script src="https://unpkg.com/@vkontakte/vkui@5/dist/vkui.umd.js"></script>
 
   <style>
-    body {
-      font-family: 'Unbounded', Arial, sans-serif;
+    * {
+      box-sizing: border-box;
       margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
       background-color: #f5f5f5;
+      color: #333;
     }
 
     .header-container {
+      position: relative;
       height: 200px;
-      background: url('https://travelrk.ru/wp-content/uploads/2024/12/Ozero-Mangup-1-2.jpg') center / cover fixed no-repeat;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      color: white;
+      overflow: hidden;
+    }
+
+    .parallax {
+      background-image: url('https://travelrk.ru/wp-content/uploads/2024/12/Ozero-Mangup-1-2.jpg');
+      background-size: cover;
+      background-position: center;
+      height: 100%;
+      width: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: -1;
+    }
+
+    .header-content {
+      position: relative;
+      z-index: 1;
+      padding: 1rem;
       text-align: center;
-      flex-direction: column;
+      color: white;
     }
 
     .logo {
-      max-width: 180px;
-      margin-bottom: 0.5rem;
+      max-width: 200px;
+      height: auto;
+      margin: 0 auto 1rem;
+      display: block;
     }
 
-    .card-wrapper {
-      position: relative;
+    header {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+
+    main {
       padding: 1rem;
-    }
-
-    .scroll-button {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      background-color: rgba(0, 0, 0, 0.6);
-      border: none;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      color: white;
-      font-size: 1.5rem;
-      cursor: pointer;
-      z-index: 1;
-    }
-
-    .scroll-left {
-      left: 0;
-    }
-
-    .scroll-right {
-      right: 0;
     }
 
     .card-container {
       display: flex;
       overflow-x: auto;
-      scroll-snap-type: x mandatory;
       gap: 1rem;
-      padding: 1rem 2rem;
+      padding-bottom: 1rem;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      scroll-behavior: smooth;
     }
 
     .card-container::-webkit-scrollbar {
@@ -82,11 +88,13 @@
       width: 250px;
       background-color: #808080;
       border-radius: 12px;
-      color: white;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
       padding: 1rem;
+      scroll-snap-align: start;
       display: flex;
       flex-direction: column;
-      scroll-snap-align: start;
+      justify-content: space-between;
+      color: white;
     }
 
     .card img {
@@ -98,95 +106,125 @@
     }
 
     .card-title {
-      display: flex;
-      align-items: center;
-      gap: 8px;
       font-size: 1rem;
-      font-weight: 600;
+      font-weight: 500;
       margin-bottom: 0.5rem;
     }
 
     .card-description {
-      font-size: 0.8rem;
-      line-height: 1.4em;
-      margin-bottom: 1rem;
+      font-size: 0.85rem;
       flex-grow: 1;
+      margin-bottom: 0.5rem;
+    }
+
+    .vkui-button-wrapper {
+      margin-top: 0.5rem;
+    }
+
+    .scroll-button {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background-color: rgba(0, 0, 0, 0.7);
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      font-size: 1.5rem;
+      color: white;
+      cursor: pointer;
+      z-index: 2;
+    }
+
+    .scroll-left {
+      left: 0;
+    }
+
+    .scroll-right {
+      right: 0;
+    }
+
+    .card-wrapper {
+      position: relative;
     }
   </style>
 </head>
-
 <body>
   <div class="header-container">
-    <img src="https://travelrk.ru/wp-content/uploads/2022/12/logo-3.png" class="logo" alt="Travel Крым">
-    <h1>Виртуальные экскурсии по Крыму</h1>
+    <div class="parallax"></div>
+    <div class="header-content">
+      <img src="https://travelrk.ru/wp-content/uploads/2022/12/logo-3.png" alt="Travel Крым" class="logo">
+      <header>Виртуальные экскурсии по Крыму</header>
+    </div>
   </div>
 
   <main>
     <div class="card-wrapper">
       <button class="scroll-button scroll-left" onclick="scrollCards(-1)">‹</button>
-      <div class="card-container" id="cards-react"></div>
+      <div class="card-container" id="cards"></div>
       <button class="scroll-button scroll-right" onclick="scrollCards(1)">›</button>
     </div>
   </main>
 
   <script>
-    window.addEventListener('DOMContentLoaded', () => {
-      const { createElement } = React;
-      const { render } = ReactDOM;
-      const { Button } = VKUI;
-      const { Icon28LocationOutline, Icon28ArrowRightOutline } = VKIcons;
+    const cardsData = [
+      {
+        title: 'Южный Крым',
+        description: 'Южный Крым – рай с горами, морем и солнцем.',
+        image: 'https://travelrk.ru/wp-content/uploads/2025/03/Gurzuf-350-450.jpg'
+      },
+      {
+        title: 'Западный Крым',
+        description: 'Скалистые берега Тарханкута и длинные пляжи Беляуса.',
+        image: 'https://travelrk.ru/wp-content/uploads/2023/12/PANO0031-2048x1152.jpg'
+      },
+      {
+        title: 'Восточный Крым',
+        description: 'Горы, море, заповедники и древние города.',
+        image: 'https://travelrk.ru/wp-content/uploads/2024/12/Koktebel-1-4-1.jpg'
+      },
+      {
+        title: 'Центральный Крым',
+        description: 'Белая скала, родники и древние крепости.',
+        image: 'https://travelrk.ru/wp-content/uploads/2024/12/Belaja-skala3.jpg'
+      }
+    ];
 
-      const cardsData = [
-        {
-          title: 'Южный Крым',
-          description: 'Южный Крым – это райский уголок с великолепными пейзажами, уютными пляжами и достопримечательностями.',
-          image: 'https://travelrk.ru/wp-content/uploads/2025/03/Gurzuf-350-450.jpg'
-        },
-        {
-          title: 'Западный Крым',
-          description: 'Западный Крым – это степные равнины и пляжи Беляуса, Оленевка и Тарханкут.',
-          image: 'https://travelrk.ru/wp-content/uploads/2023/12/PANO0031-2048x1152.jpg'
-        },
-        {
-          title: 'Восточный Крым',
-          description: 'Восточный Крым – это горные ландшафты, лазурное море и атмосферные места.',
-          image: 'https://travelrk.ru/wp-content/uploads/2024/12/Koktebel-1-4-1.jpg'
-        },
-        {
-          title: 'Центральный Крым',
-          description: 'Центральный Крым – это Белая скала, степи, виноградники и историческое наследие.',
-          image: 'https://travelrk.ru/wp-content/uploads/2024/12/Belaja-skala3.jpg'
-        }
-      ];
+    const cardsContainer = document.getElementById('cards');
 
-      const Card = ({ title, description, image }) => createElement("div", { className: "card" },
-        createElement("img", { src: image, alt: title }),
-        createElement("div", { className: "card-title" },
-          createElement(Icon28LocationOutline, { width: 20, height: 20 }),
-          title
-        ),
-        createElement("div", { className: "card-description" }, description),
-        createElement(Button, {
-          size: "m",
-          mode: "outline",
-          stretched: true,
-          after: createElement(Icon28ArrowRightOutline, {}),
-          onClick: () => alert(`Открыть: ${title}`)
-        }, "Подробнее")
-      );
+    cardsData.forEach(({ title, description, image }) => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <img src="${image}" alt="${title}" loading="lazy" />
+        <div class="card-title">${title}</div>
+        <div class="card-description">${description}</div>
+        <div class="vkui-button-wrapper"></div>
+      `;
+      const buttonWrapper = card.querySelector('.vkui-button-wrapper');
 
-      const App = () => cardsData.map((props, i) => createElement(Card, { key: i, ...props }));
+      const Button = vkui.Button;
+      const Icon28Play = vkIcons.Icon28Play;
 
-      render(createElement(App), document.getElementById("cards-react"));
+      const btn = new Button({
+        size: "m",
+        appearance: "accent",
+        before: vkui.createElement(Icon28Play, null),
+        children: "Подробнее"
+      });
+
+      buttonWrapper.appendChild(btn);
+
+      cardsContainer.appendChild(card);
     });
 
     function scrollCards(direction) {
-      const container = document.getElementById("cards-react");
-      container.scrollBy({
-        left: 260 * direction,
-        behavior: 'smooth'
-      });
+      const scrollAmount = 270;
+      cardsContainer.scrollBy({ left: scrollAmount * direction, behavior: 'smooth' });
     }
+
+    // VK Bridge init
+    vkBridge.send("VKWebAppInit");
   </script>
 </body>
 </html>
