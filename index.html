@@ -1,228 +1,1423 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Travel Крым - Виртуальные экскурсии</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link rel="manifest" href="/manifest.json">
+  <title>Travel Крым</title>
+      <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@200;300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+  <!-- VK Bridge -->
+  <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js"></script>
+  <script>
+    vkBridge.send('VKWebAppInit');
+    vkBridge.subscribe((e) => {
+      if (e.detail.type === 'VKWebAppUpdateConfig') {
+        document.body.setAttribute('scheme', e.detail.data.scheme || 'client_light');
+      }
+    });
+  </script>
 
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+        :root {
+            --bg-color: #121212;
+            --text-color: #e0e0e0;
+            --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            --button-bg: rgba(255, 255, 255, 0.5);
+            --button-text: white;
+            --overlay-color: rgba(0, 0, 0, 0.3);
+            --primary-color: #FF6B00;
+        }
 
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-      background-color: #f5f5f5;
-      color: #333;
-    }
+        body {
+            font-family: 'Unbounded', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: var(--bg-color);
+            color: var(--text-color);
+            overflow-x: hidden;
+        }
 
-    .header-container {
-      position: relative;
-      height: 200px;
-      overflow: hidden;
-    }
+        /* Шапка с логотипом */
+        .header {
+            position: relative;
+            height: 70vh;
+            min-height: 500px;
+            background: 
+                linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), 
+                url('https://psv4.userapi.com/s/v1/d/T1aE9Tp7o-FjmJww6f9a77P83I0r6yLvskGkRhDwn7XBgi88__BsbGtqWgWgkaFeD7gMVNO9vrN5XgOJZ7RnKZ4Oqg8muAneXTxVXVX9jSxRzgerpo1b-w/Bez_imeni-1.jpg') center/cover no-repeat;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: white;
+        }
 
-    .parallax {
-      background-image: url('https://travelrk.ru/wp-content/uploads/2024/12/Ozero-Mangup-1-2.jpg');
-      background-size: cover;
-      background-position: center;
-      height: 100%;
-      width: 100%;
-      position: absolute;
-      top: 0;
-      left: 0;
-      z-index: -1;
-    }
+        .logo {
+            width: 250px;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+            margin-bottom: 20px;
+        }
 
-    .header-content {
-      position: relative;
-      z-index: 1;
-      padding: 1rem;
-      text-align: center;
-      color: white;
-    }
+        .header-title {
+            font-size: 2.5rem;
+            margin: 0 0 15px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
 
-    .logo {
-      max-width: 200px;
-      height: auto;
-      margin: 0 auto 1rem;
-      display: block;
-    }
+        .header-description {
+            font-size: 1.2rem;
+            max-width: 600px;
+            padding: 0 20px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
 
-    header {
-      font-size: 1.2rem;
-      font-weight: 600;
-      margin-bottom: 1rem;
-    }
+        /* Секция с горизонтальным скроллом */
+        .region-container {
+            padding: 50px 0;
+            background: var(--bg-color);
+        }
 
-    main {
-      padding: 1rem;
-    }
+        .region-title {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 400;
+            margin-bottom: 30px;
+            padding: 0 20px;
+        }
 
-    .card-container {
-      display: flex;
-      overflow-x: auto;
-      gap: 1rem;
-      padding-bottom: 1rem;
-      scroll-snap-type: x mandatory;
-      -webkit-overflow-scrolling: touch;
-      scroll-behavior: smooth;
-    }
+        .cards-scroll-container {
+            position: relative;
+            max-width: 100%;
+            margin: 0 auto;
+        }
 
-    .card-container::-webkit-scrollbar {
-      display: none;
-    }
+        .cards-scroll {
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+            transition: scroll-left 0.5s ease-in-out;
+            gap: 20px;
+            padding: 20px;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
 
-    .card {
-      flex: 0 0 auto;
-      width: 250px;
-      background-color: #808080;
-      border-radius: 12px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      padding: 1rem;
-      scroll-snap-align: start;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      color: white;
-    }
+        .cards-scroll::-webkit-scrollbar {
+            display: none;
+        }
 
-    .card img {
-      width: 100%;
-      height: 150px;
-      object-fit: cover;
-      border-radius: 8px;
-      margin-bottom: 0.5rem;
+        /* Стили карточки (350×450) */
+        .card {
+            flex: 0 0 350px;
+            height: 450px;
+            scroll-snap-align: start;
+            background: transparent;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+            position: relative;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-image-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .card-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .card:hover .card-image {
+            transform: scale(1.05);
+        }
+
+    .card-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: 
+            linear-gradient(to top, rgba(0,0,0,0.8) 0%, 
+            rgba(0,0,0,0.5) 50%, 
+            rgba(0,0,0,0.3) 100%),
+            rgba(0,0,0,0.2);
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        padding: 25px;
+        text-align: center;
+        z-index: 1;
     }
 
     .card-title {
-      font-size: 1rem;
-      font-weight: 500;
-      margin-bottom: 0.5rem;
+        font-size: 1.5rem;
+        margin: 0;
+        color: white;
+        font-weight: 300;
+        text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+        position: relative;
+        z-index: 2;
     }
 
     .card-description {
-      font-size: 0.85rem;
-      flex-grow: 1;
-      margin-bottom: 0.5rem;
+        font-size: 1rem;
+        color: white;
+        font-weight: 200;
+        margin: 15px 0 20px;
+        text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+        position: relative;
+        z-index: 2;
+    }
+    
+    .card-overlay::before {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 60%;
+        background: linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 100%);
+        z-index: 1;
     }
 
-    .custom-button {
-      background-color: #0077ff;
-      color: white;
-      border: none;
-      padding: 0.5rem 1rem;
-      font-size: 0.9rem;
-      border-radius: 8px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-    }
+        .card-button {
+            background: var(--button-bg);
+            color: var(--button-text);
+            border: 2px solid white;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-family: 'Unbounded';
+            font-size: 1rem;
+            font-weight: 400;
+            cursor: pointer;
+            transition: all 0.3s;
+        	position: relative;
+        	z-index: 2;            
+        }
 
-    .custom-button:hover {
-      background-color: #005bcc;
-    }
+        .card-button:hover {
+            background: rgba(255, 255, 255, 0.7);
+        }
 
-    .custom-button svg {
-      width: 20px;
-      height: 20px;
-      fill: white;
-    }
+        /* Стрелки навигации */
+        .scroll-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 50px;
+            height: 50px;
+            background: var(--button-bg);
+            color: white;
+            border: 2px solid white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 1.2rem;
+        }
 
-    .scroll-button {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      background-color: rgba(0, 0, 0, 0.7);
-      border: none;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      font-size: 1.5rem;
-      color: white;
-      cursor: pointer;
-      z-index: 2;
-    }
+        .cards-scroll-container:hover .scroll-arrow {
+            opacity: 1;
+        }
 
-    .scroll-left {
-      left: 0;
-    }
+        .scroll-arrow.prev {
+            left: 10px;
+        }
 
-    .scroll-right {
-      right: 0;
-    }
+        .scroll-arrow.next {
+            right: 10px;
+        }
 
-    .card-wrapper {
-      position: relative;
-    }
+        /* Модальное окно с кнопкой внутри */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: flex-end;
+            z-index: 1000;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-container {
+            width: 100%;
+            height: 100%;
+            background: rgba(30, 30, 30, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 20px 20px 0 0;
+            transform: translateY(100%);
+            transition: transform 0.3s ease-out;
+            position: relative;
+        }
+
+        .modal-overlay.active .modal-container {
+            transform: translateY(0);
+        }
+
+        .modal-content {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .close-modal {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            width: 50px;
+            height: 50px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1001;
+            font-size: 1.2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                height: 60vh;
+                min-height: 400px;
+            }
+            
+            .logo {
+                width: 200px;
+            }
+            
+            .header-title {
+                font-size: 2rem;
+            }
+            
+            .header-description {
+                font-size: 1rem;
+            }
+
+            .card {
+                flex: 0 0 280px;
+                height: 360px;
+            }
+            
+            .card-title {
+                font-size: 1.3rem;
+            }
+            
+            .card-description {
+                font-size: 0.9rem;
+                margin: 10px 0 15px;
+            }
+            
+            .card-button {
+                padding: 10px 25px;
+                font-size: 0.9rem;
+            }
+            
+            .scroll-arrow {
+                display: none;
+            }
+            
+            .close-modal {
+                width: 40px;
+                height: 40px;
+                bottom: 10px;
+                left: 10px;
+            }
+        }
   </style>
 </head>
+
 <body>
-  <div class="header-container">
-    <div class="parallax"></div>
-    <div class="header-content">
-      <img src="https://travelrk.ru/wp-content/uploads/2022/12/logo-3.png" alt="Travel Крым" class="logo">
-      <header>Виртуальные экскурсии по Крыму</header>
+    <!-- Шапка с логотипом -->
+    <header class="header">
+        <img src="https://psv4.userapi.com/s/v1/d/ASp2Vw74fYnIg_oE-IBR7WpB5MWC17DTb9Xiy8D34Tf59mQUb483qbctXHC8OcQfU0yfF257As43ZIhRNVpOZ8iDLscgDDxd48aU7HSfzJ6BeyX_5VJoqw/logo1.png" 
+             alt="Travel Крым" 
+             class="logo">
+        <p class="header-description">Виртуальные экскурсии по самым живописным местам полуострова</p>
+    </header>
+
+    <!-- Секция "Западный Крым" -->
+    <section class="region-container">
+        <h2 class="region-title">Западный Крым</h2>
+        <div class="cards-scroll-container">
+            <div class="cards-scroll" id="westCardsScroll">
+            
+                <!-- Карточка 1 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/03/Pljazhi-Popovki-350-450.jpg" 
+                             alt="Пляжи Поповки" 
+                             class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Пляжи Поповки</h3>
+                            <p class="card-description">Небольшое курортное с. Поповка славится живописными широкими песчаными пляжами</p>
+                            <button class="card-button" data-url="https://pano.travelrk.ru/panotour/KGC68BA3/">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Карточка 2 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/03/Gorodok-Kajtinga-350-450.jpg" 
+                             alt="Городок Кайтинга" 
+                             class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Городок Кайтинга</h3>
+                            <p class="card-description">Здесь найдется место для экстремального время препровождения</p>
+                            <button class="card-button" data-url="https://pano.travelrk.ru/panotour/IPQ27ZHT/?s=pano44599&h=47.7122&v=14.6176&f=60.0000">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Карточка 3 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/03/Pljazhi-Evpatorii-350-450.jpg" 
+                             alt="Пляжи Евпатории" 
+                             class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Пляжи Евпатории</h3>
+                            <p class="card-description">Идеальное место для семейного отдыха. Курортный город славится своими песчаными берегами</p>
+                            <button class="card-button" data-url="https://psv4.userapi.com/s/v1/d/LSrXi6xaJlAHkrz5DSG1awTGgu5ICxJubV-qBdXIffWlkOmM4dKyM9zRNbT7qd77-84zk2XKvnEdgpqY7P_rEaopjSToNJS5vtoFEL9DfHdpClgpBIFSuA/Bez_imeni-1.jpg">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Карточка 4 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/03/Ozero-Sysak-350-450.jpg" 
+                             alt="Озеро Сасык" 
+                             class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Озеро Сасык</h3>
+                            <p class="card-description">Озеро Сасык-Сиваш, уникальная достопримечательность Крымского полуострова</p>
+                            <button class="card-button" data-url="https://pano.travelrk.ru/panotour/TD6VFU01/">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Карточка 5 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/03/Buhta-Kipchak-350-450.jpg" 
+                             alt="Бухта Кипчак" 
+                             class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Бухта Кипчак</h3>
+                            <p class="card-description">Бухта Кипчак с белым песчаным пляжем – идеальное место для семейного отдыха в палатке</p>
+                            <button class="card-button" data-url="https://pano.travelrk.ru/panotour/HHB034ED/">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Карточка 6 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/03/Sevastopol-350-450.jpg" 
+                             alt="Севастополь" 
+                             class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Севастополь</h3>
+                            <p class="card-description">Севастополь, город-герой известен Черноморским флотом и историческими памятниками</p>
+                            <button class="card-button" data-url="https://psv4.userapi.com/s/v1/d/LSrXi6xaJlAHkrz5DSG1awTGgu5ICxJubV-qBdXIffWlkOmM4dKyM9zRNbT7qd77-84zk2XKvnEdgpqY7P_rEaopjSToNJS5vtoFEL9DfHdpClgpBIFSuA/Bez_imeni-1.jpg">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Карточка 7 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/03/Novofedorovka-350-450.jpg" 
+                             alt="Новофедоровка" 
+                             class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Новофедоровка</h3>
+                            <p class="card-description">Удивительный и доступный курорт. Здесь вы найдете просторные пляжи, чистое море и сухой климат</p>
+                            <button class="card-button" data-url="https://pano.travelrk.ru/panotour/FIM42OHN/">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Карточка 8 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/03/Chernomorskoe-350-450.jpg" 
+                             alt="Черноморское" 
+                             class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Черноморское</h3>
+                            <p class="card-description">Черноморское – находится в одном из живописных мест Крыма – Тарханкутском полуострове</p>
+                            <button class="card-button" data-url="https://pano.travelrk.ru/panotour/LGDXGAR5/">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Карточка 9 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/03/Pljazh-Baunti-350-450.jpg" 
+                             alt="Пляж Баунти" 
+                             class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Пляж Баунти</h3>
+                            <p class="card-description">Располагается в одном из самых живописных мест полуострова с прозрачной водой</p>
+                            <button class="card-button" data-url="https://psv4.userapi.com/s/v1/d/LSrXi6xaJlAHkrz5DSG1awTGgu5ICxJubV-qBdXIffWlkOmM4dKyM9zRNbT7qd77-84zk2XKvnEdgpqY7P_rEaopjSToNJS5vtoFEL9DfHdpClgpBIFSuA/Bez_imeni-1.jpg">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Карточка 10 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/03/Balaklava-350-450.jpg" 
+                             alt="Балаклава" 
+                             class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Балаклава</h3>
+                            <p class="card-description">Балаклавская бухта расположена в прекрасной природной зоне, скрытой за скалами от открытого моря</p>
+                            <button class="card-button" data-url="https://psv4.userapi.com/s/v1/d/LSrXi6xaJlAHkrz5DSG1awTGgu5ICxJubV-qBdXIffWlkOmM4dKyM9zRNbT7qd77-84zk2XKvnEdgpqY7P_rEaopjSToNJS5vtoFEL9DfHdpClgpBIFSuA/Bez_imeni-1.jpg">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Карточка 11 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/03/Mezhvodnoe-350-450.jpg" 
+                             alt="Межводное" 
+                             class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Межводное</h3>
+                            <p class="card-description">Межводное – село, расположенное на территории Черноморского района Республики Крым</p>
+                            <button class="card-button" data-url="https://pano.travelrk.ru/panotour/IPQ27ZHT/">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Карточка 12 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/03/Olenevka-350-450.jpg" 
+                             alt="Оленевка" 
+                             class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Оленевка</h3>
+                            <p class="card-description">Называют Крымскими Мальдивами. Вход в море и плавное дно делают его идеальным для малышей</p>
+                            <button class="card-button" data-url="https://pano.travelrk.ru/panotour/A34C55JM/">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Карточка 13 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/03/Malyj-Atlesh-350-450.jpg" 
+                             alt="Малый Атлеш" 
+                             class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Малый Атлеш</h3>
+                            <p class="card-description">Известен своими гротами и отвесными скалами. Самое известное место для дайвинга в Крыму.</p>
+                            <button class="card-button" data-url="https://pano.travelrk.ru/panotour/A34C55JM/?s=pano69&h=-1.524&v=2.3308&f=60.0000">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Карточка 14 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/03/Kosa-Beljaus-350-450.jpg" 
+                             alt="Коса Беляус" 
+                             class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Коса Беляус</h3>
+                            <p class="card-description">Это непередаваемая красота десяти километрового пляжа. Она восхищает своей чистотой и прозрачностью воды</p>
+                            <button class="card-button" data-url="https://pano.travelrk.ru/panotour/GWMNI4MY/">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Карточка 15 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/03/Bolshoj-Atlesh-350-450.jpg" 
+                             alt="Большой Атлеш" 
+                             class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Большой Атлеш</h3>
+                            <p class="card-description">Длинный мыс с гротом поражающий своими пейзажами, оттенками воды и скал</p>
+                            <button class="card-button" data-url="https://pano.travelrk.ru/panotour/F7Y0IBZO/">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Карточка 16 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/03/Zaozernoe-350-450.jpg" 
+                             alt="Заозерное" 
+                             class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Заозерное</h3>
+                            <p class="card-description">Остров спокойствия. Курорт привлекает своими здравницами, детскими центрами и санаториями</p>
+                            <button class="card-button" data-url="https://pano.travelrk.ru/panotour/G3KSO1X8/">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Карточка 17 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/03/Shtormovoe-350-450.jpg" 
+                             alt="Штормовое" 
+                             class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Штормовое</h3>
+                            <p class="card-description">Это уникальные и соблазнительные белые песчаные пляжи, протяженностью 3,5 км</p>
+                            <button class="card-button" data-url="https://psv4.userapi.com/s/v1/d/LSrXi6xaJlAHkrz5DSG1awTGgu5ICxJubV-qBdXIffWlkOmM4dKyM9zRNbT7qd77-84zk2XKvnEdgpqY7P_rEaopjSToNJS5vtoFEL9DfHdpClgpBIFSuA/Bez_imeni-1.jpg">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Карточка 18 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/03/Bolshoj-Kastel-350-450.jpg" 
+                             alt="Большой Кастель" 
+                             class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Большой Кастель</h3>
+                            <p class="card-description">Место с уникальной флорой и фауной. Идеально для палаточного отдыха, пеших прогулок и фотосессий</p>
+                            <button class="card-button" data-url="https://pano.travelrk.ru/panotour/5ZG2YASM/">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Карточка 19 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/03/Mys-Fiolent-350-450.jpg" 
+                             alt="Мыс Фиолент" 
+                             class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Мыс Фиолент</h3>
+                            <p class="card-description">Излюбленное место для плаванья на каяках. На побережье расположены каменистые бухты</p>
+                            <button class="card-button" data-url="https://psv4.userapi.com/s/v1/d/LSrXi6xaJlAHkrz5DSG1awTGgu5ICxJubV-qBdXIffWlkOmM4dKyM9zRNbT7qd77-84zk2XKvnEdgpqY7P_rEaopjSToNJS5vtoFEL9DfHdpClgpBIFSuA/Bez_imeni-1.jpg">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Карточка 20 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/03/Sakskie-pljazhi-350-450.jpg" 
+                             alt="Сакские Пляжи" 
+                             class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Сакские Пляжи</h3>
+                            <p class="card-description">Саки – здравница Крыма. Прекрасная природа этого места создает уникальную атмосферу</p>
+                            <button class="card-button" data-url="https://pano.travelrk.ru/panotour/CTJ7YX1Y/">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Стрелки навигации -->
+            <button class="scroll-arrow prev west-prev">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="scroll-arrow next west-next">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+    </section>
+
+    <!-- Секция "Южный Крым" -->
+    <section class="region-container">
+        <h2 class="region-title">Южный Крым</h2>
+        <div class="cards-scroll-container">
+            <div class="cards-scroll" id="southCardsScroll">
+                <!-- Карточка 1 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/03/Alushta-350-450.jpg" alt="Алушта" class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Алушта</h3>
+                            <p class="card-description">Яркий курортный городок с набережной 7 км, является любимым местом для прогулок у горожан</p>
+                            <button class="card-button" data-url="https://pano.travelrk.ru/panotour/QEOIZJBJ/">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Карточка 2 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/03/Gurzuf-350-450.jpg" alt="Гурзуф" class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Гурзуф</h3>
+                            <p class="card-description">Крымский климатический курорт. Сюда приезжают на отдых, чтобы насладиться красотой природы</p>
+                            <button class="card-button" data-url="https://pano.travelrk.ru/panotour/8QBZLJVI/">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Карточка 3 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/03/Demerdzhi-350-450.jpg" alt="Демерджи" class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Демерджи</h3>
+                            <p class="card-description">Демерджи уникальное место Крыма с захватывающими пейзажами и таинственной атмосферой</p>
+                            <button class="card-button" data-url="https://psv4.userapi.com/s/v1/d/LSrXi6xaJlAHkrz5DSG1awTGgu5ICxJubV-qBdXIffWlkOmM4dKyM9zRNbT7qd77-84zk2XKvnEdgpqY7P_rEaopjSToNJS5vtoFEL9DfHdpClgpBIFSuA/Bez_imeni-1.jpg">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Карточка 4 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/03/Park-Ajvazovskogo-350-450.jpg" alt="Парк Айвазовского" class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Парк Айвазовского</h3>
+                            <p class="card-description">Посетите этот райский уголок в Крыму для укрепления здоровья и эстетического наслаждения</p>
+                            <button class="card-button" data-url="https://pano.travelrk.ru/panotour/YL8UFSNT/">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Карточка 5 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/03/Simeiz-350-450.jpg" alt="Симеиз" class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Симеиз</h3>
+                            <p class="card-description">Курорт популярен благодаря своему мягкому климату, чистому морю и насыщенному воздуху</p>
+                            <button class="card-button" data-url="https://psv4.userapi.com/s/v1/d/LSrXi6xaJlAHkrz5DSG1awTGgu5ICxJubV-qBdXIffWlkOmM4dKyM9zRNbT7qd77-84zk2XKvnEdgpqY7P_rEaopjSToNJS5vtoFEL9DfHdpClgpBIFSuA/Bez_imeni-1.jpg">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Карточка 6 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/03/Jalta-350-450.jpg" alt="Ялта" class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Ялта</h3>
+                            <p class="card-description">Главный курорт Крыма. Наслаждайтесь морем, целебным воздухом, горами, прогулками</p>
+                            <button class="card-button" data-url="https://pano.travelrk.ru/panotour/660EWZ4U/">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Карточка 7 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/03/Aj-Petri-350-450.jpg" alt="Ай-Петри" class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Ай-Петри</h3>
+                            <p class="card-description">Является одной из самых популярных вершин среди туристов. Высота Ай-Петри составляет 1234 метра</p>
+                            <button class="card-button" data-url="https://pano.travelrk.ru/panotour/V5B63SDZ/">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Карточка 8 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/03/Alupka-350-450.jpg" alt="Алупка" class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Алупка</h3>
+                            <p class="card-description">Основная достопримечательность  Воронцовский дворец, окруженный парком</p>
+                            <button class="card-button" data-url="https://psv4.userapi.com/s/v1/d/LSrXi6xaJlAHkrz5DSG1awTGgu5ICxJubV-qBdXIffWlkOmM4dKyM9zRNbT7qd77-84zk2XKvnEdgpqY7P_rEaopjSToNJS5vtoFEL9DfHdpClgpBIFSuA/Bez_imeni-1.jpg">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Карточка 9 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/03/gora-Koshka-350-450.jpg.jpg" alt="Гора Кошка" class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Гора Кошка</h3>
+                            <p class="card-description">Скала на юге Крыма, памятник живой природы. Напоминает силуэт припавшей к земле кошки</p>
+                            <button class="card-button" data-url="https://psv4.userapi.com/s/v1/d/LSrXi6xaJlAHkrz5DSG1awTGgu5ICxJubV-qBdXIffWlkOmM4dKyM9zRNbT7qd77-84zk2XKvnEdgpqY7P_rEaopjSToNJS5vtoFEL9DfHdpClgpBIFSuA/Bez_imeni-1.jpg">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Карточка 10 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/03/Dzhur-Dzhur-350-450.jpg" alt="Джур-Джур" class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Джур-Джур</h3>
+                            <p class="card-description">Самый мощный и полноводный водопад Крыма, он находится на территории Хапхальского заказника</p>
+                            <button class="card-button" data-url="https://psv4.userapi.com/s/v1/d/LSrXi6xaJlAHkrz5DSG1awTGgu5ICxJubV-qBdXIffWlkOmM4dKyM9zRNbT7qd77-84zk2XKvnEdgpqY7P_rEaopjSToNJS5vtoFEL9DfHdpClgpBIFSuA/Bez_imeni-1.jpg">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Карточка 11 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/03/Zelenogore-350-450.jpg" alt="Зеленогорье" class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Зеленогорье</h3>
+                            <p class="card-description">Мини-курорт, вокруг которого открываются красивые горные пейзажи и множество горных троп</p>
+                            <button class="card-button" data-url="https://psv4.userapi.com/s/v1/d/LSrXi6xaJlAHkrz5DSG1awTGgu5ICxJubV-qBdXIffWlkOmM4dKyM9zRNbT7qd77-84zk2XKvnEdgpqY7P_rEaopjSToNJS5vtoFEL9DfHdpClgpBIFSuA/Bez_imeni-1.jpg">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Карточка 12 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/03/Hram-majak-Malorechenskoe-350-450.jpg" alt="Храм-Маяк Малореченское" class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Храм-Маяк Малореченское</h3>
+                            <p class="card-description">Является частью мемориала всем погибшим на водах. Храм известен своей звонницей</p>
+                            <button class="card-button" data-url="https://psv4.userapi.com/s/v1/d/LSrXi6xaJlAHkrz5DSG1awTGgu5ICxJubV-qBdXIffWlkOmM4dKyM9zRNbT7qd77-84zk2XKvnEdgpqY7P_rEaopjSToNJS5vtoFEL9DfHdpClgpBIFSuA/Bez_imeni-1.jpg">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Карточка 13 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/03/Masandrovskij-pljazh-350-450.jpg" alt="Массандровский пляж" class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Массандровский пляж</h3>
+                            <p class="card-description">Называют одним из лучших в России. На пляже развитая инфраструктура и чистая вода</p>
+                            <button class="card-button" data-url="https://pano.travelrk.ru/panotour/E21KRMJR/">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Карточка 14 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/03/Mys-Plaka-350-450.jpg" alt="Мыс Плака" class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Мыс Плака</h3>
+                            <p class="card-description">Уникальное место, здесь расположен Дворец княгини Гагариной, окруженный красивой природой</p>
+                            <button class="card-button" data-url="https://pano.travelrk.ru/panotour/01Q3T1XM/">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Карточка 15 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/03/Primorskij-pljazh-350-450.jpg" alt="Приморский пляж" class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Приморский пляж</h3>
+                            <p class="card-description">В самом центре города-курорта на 400 м протянулся пляж – популярнейшее место отдыха</p>
+                            <button class="card-button" data-url="https://pano.travelrk.ru/panotour/BTPZRT6I/">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Карточка 16 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/03/Partenit-350-450.jpg" alt="Партенит" class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Партенит</h3>
+                            <p class="card-description">Удивительный курортный поселок на Южном побережье Крыма. Живописное место</p>
+                            <button class="card-button" data-url="https://pano.travelrk.ru/panotour/TK834HAU/">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Карточка 17 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/03/Syrnaja-skala-350-450.jpg" alt="Сырная скала" class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Сырная скала</h3>
+                            <p class="card-description">Уникальное природное образование. Ветры и солёные волны выбили в камнях отверстия – каверны</p>
+                            <button class="card-button" data-url="https://psv4.userapi.com/s/v1/d/LSrXi6xaJlAHkrz5DSG1awTGgu5ICxJubV-qBdXIffWlkOmM4dKyM9zRNbT7qd77-84zk2XKvnEdgpqY7P_rEaopjSToNJS5vtoFEL9DfHdpClgpBIFSuA/Bez_imeni-1.jpg">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Карточка 18 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/03/Utes-350-450.jpg" alt="Утёс" class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Утёс</h3>
+                            <p class="card-description">Весьма необычный курорт, который вырос из простого рыбацкого поселка в место для отдыхаи</p>
+                            <button class="card-button" data-url="https://pano.travelrk.ru/panotour/LX4RPWL6/">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Стрелки навигации -->
+            <button class="scroll-arrow prev south-prev">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="scroll-arrow next south-next">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+    </section>
+
+    <!-- Секция "Восточный Крым" -->
+    <section class="region-container">
+        <h2 class="region-title">Восточный Крым</h2>
+        <div class="cards-scroll-container">
+            <div class="cards-scroll" id="eastCardsScroll">
+                <!-- Карточка 1 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/02/Gora-Klimenteva-350-450.jpg" alt="Гора Климентьева" class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Гора Климентьева</h3>
+                            <p class="card-description">Приглашаем открыть для себя уникальную Гору Клементьева в Коктебеле</p>
+                            <button class="card-button" data-url="https://pano.travelrk.ru/panotour/J0R4LWLA/?s=pano32653&h=-126.9726&v=21.9356&f=60.0000">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Карточка 2 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/02/Dikie-pljazhi-Semenovki-350-450.jpg" alt="Дикие пляжи Семеновки" class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Дикие пляжи Семеновки</h3>
+                            <p class="card-description">Здесь можно увидеть обрывистые уступы, скалы и красивые бухты</p>
+                            <button class="card-button" data-url="https://psv4.userapi.com/s/v1/d/LSrXi6xaJlAHkrz5DSG1awTGgu5ICxJubV-qBdXIffWlkOmM4dKyM9zRNbT7qd77-84zk2XKvnEdgpqY7P_rEaopjSToNJS5vtoFEL9DfHdpClgpBIFSuA/Bez_imeni-1.jpg">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Карточка 3 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/02/Karadag-350-450.jpg" alt="Карадаг" class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Карадаг</h3>
+                            <p class="card-description">ТОстатки древнего вулкана с уникальной природой и растительным миром</p>
+                            <button class="card-button" data-url="https://pano.travelrk.ru/panotour/J0R4LWLA/">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Карточка 4 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/02/Koktebel-350-450.jpg" alt="Коктебель" class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Коктебель</h3>
+                            <p class="card-description">Уникальное место для летнего отдыха, залив с чистой водой и потухшим вулканом Карадаг</p>
+                            <button class="card-button" data-url="https://pano.travelrk.ru/panotour/951GDQJF/">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Карточка 5 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/02/Kurortnoe-350-450.jpg" alt="Курортное" class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Курортное</h3>
+                            <p class="card-description">Поселок подойдет тем, кому не нужно никакой суеты и развлечений кроме пляжа</p>
+                            <button class="card-button" data-url="https://pano.travelrk.ru/panotour/F8Z8WYKI/">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Карточка 6 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/02/Mys-Alchak-350-450.jpg" alt="Мыс Алчак" class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Мыс Алчак</h3>
+                            <p class="card-description">Приглашаем прогуляться по горе Алчак-Кая, урочищу и  хранилищу древних кладов</p>
+                            <button class="card-button" data-url="https://pano.travelrk.ru/panotour/GXIVAT85/?s=pano45&h=-25.7045&v=23.6860&f=60.0000">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Карточка 7 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/02/Novyj-Svet-350-450.jpg" alt="Новый Свет" class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Новый Свет</h3>
+                            <p class="card-description">Уютный курортный посёлок, расположенный на берегу живописной Зеленой бухты</p>
+                            <button class="card-button" data-url="https://pano.travelrk.ru/panotour/JE4HONQY/">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Карточка 8 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/02/Tropa-Galicina-350-450.jpg" alt="Тропа Голицына" class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Тропа Голицына</h3>
+                            <p class="card-description">Прогулка по тропе откроет перед вами множество красивых мысов и бухт</p>
+                            <button class="card-button" data-url="https://pano.travelrk.ru/panotour/JE4HONQY/?s=pano392&h=15.5172&v=36.2069&f=60.0000">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Карточка 9 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/03/Sudak.jpg" alt="Судак" class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Судак</h3>
+                            <p class="card-description">Уникальное сочетание истории и современности, красивых пляжей и экскурсий</p>
+                            <button class="card-button" data-url="https://pano.travelrk.ru/panotour/GXIVAT85/">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Карточка 10 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/02/Tihaja-Buhta-350-450.jpg" alt="Тихая Бухта" class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Тихая Бухта</h3>
+                            <p class="card-description">Популярна немноголюдным песчаным пляжем, тихим заливом и красотой</p>
+                            <button class="card-button" data-url="https://psv4.userapi.com/s/v1/d/LSrXi6xaJlAHkrz5DSG1awTGgu5ICxJubV-qBdXIffWlkOmM4dKyM9zRNbT7qd77-84zk2XKvnEdgpqY7P_rEaopjSToNJS5vtoFEL9DfHdpClgpBIFSuA/Bez_imeni-1.jpg">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Карточка 11 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/02/Feodosija-350-450.jpg" alt="Феодосия" class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Феодосия</h3>
+                            <p class="card-description">Популярный курорт на восточном побережье Крыма с прекрасным климатом</p>
+                            <button class="card-button" data-url="https://psv4.userapi.com/s/v1/d/LSrXi6xaJlAHkrz5DSG1awTGgu5ICxJubV-qBdXIffWlkOmM4dKyM9zRNbT7qd77-84zk2XKvnEdgpqY7P_rEaopjSToNJS5vtoFEL9DfHdpClgpBIFSuA/Bez_imeni-1.jpg">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Карточка 12 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/02/Carskij-pljazh-350-450.jpg" alt="Царский пляж" class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Царский пляж</h3>
+                            <p class="card-description">Одно из самых популярных мест для туристов и местных жителей</p>
+                            <button class="card-button" data-url="https://pano.travelrk.ru/panotour/1XQ4USZ4/">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Карточка 13 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/02/Shhelkino-350-450.jpg" alt="Щелкино" class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Щелкино</h3>
+                            <p class="card-description">Местные пляжи привлекают множество отдыхающих и удивляют своей шириной</p>
+                            <button class="card-button" data-url="https://psv4.userapi.com/s/v1/d/LSrXi6xaJlAHkrz5DSG1awTGgu5ICxJubV-qBdXIffWlkOmM4dKyM9zRNbT7qd77-84zk2XKvnEdgpqY7P_rEaopjSToNJS5vtoFEL9DfHdpClgpBIFSuA/Bez_imeni-1.jpg">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Стрелки навигации -->
+            <button class="scroll-arrow prev east-prev">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="scroll-arrow next east-next">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+    </section>
+
+    <!-- Секция "Центральный Крым" -->
+    <section class="region-container">
+        <h2 class="region-title">Центральный Крым</h2>
+        <div class="cards-scroll-container">
+            <div class="cards-scroll" id="centralCardsScroll">
+                <!-- Карточка 1 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/03/Gora-Krokodil-350-450.jpg" alt="Гора Крокодил" class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Гора Крокодил</h3>
+                            <p class="card-description">Место с потрясающим видом на реку Бельбек. Там снимают кино и проводят экскурсии</p>
+                            <button class="card-button" data-url="https://psv4.userapi.com/s/v1/d/LSrXi6xaJlAHkrz5DSG1awTGgu5ICxJubV-qBdXIffWlkOmM4dKyM9zRNbT7qd77-84zk2XKvnEdgpqY7P_rEaopjSToNJS5vtoFEL9DfHdpClgpBIFSuA/Bez_imeni-1.jpg">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Карточка 2 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/03/Kachi-Kalon-350-450.jpg" alt="Качи-Кальон" class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Качи-Кальон</h3>
+                            <p class="card-description">Можно посетить церковь Святой Софии, мастерские, винодельни и Бисерный Храм</p>
+                            <button class="card-button" data-url="https://psv4.userapi.com/s/v1/d/LSrXi6xaJlAHkrz5DSG1awTGgu5ICxJubV-qBdXIffWlkOmM4dKyM9zRNbT7qd77-84zk2XKvnEdgpqY7P_rEaopjSToNJS5vtoFEL9DfHdpClgpBIFSuA/Bez_imeni-1.jpg">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Карточка 3 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/03/Kizil-Koba-350-450.jpg" alt="Кизил Коба" class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Кизил Коба</h3>
+                            <p class="card-description">Ландшафтно-рекреационный парк «Урочище «Кизил-Коба»- живописный уголок Крымад</p>
+                            <button class="card-button" data-url="https://psv4.userapi.com/s/v1/d/LSrXi6xaJlAHkrz5DSG1awTGgu5ICxJubV-qBdXIffWlkOmM4dKyM9zRNbT7qd77-84zk2XKvnEdgpqY7P_rEaopjSToNJS5vtoFEL9DfHdpClgpBIFSuA/Bez_imeni-1.jpg">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Карточка 4 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/03/Chelter-Marmora-350-450.jpg" alt="Челтер-Мармара" class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Челтер-Мармара</h3>
+                            <p class="card-description">Христианский храмовый комплекс, в котором сейчас расположен монастырь</p>
+                            <button class="card-button" data-url="https://psv4.userapi.com/s/v1/d/LSrXi6xaJlAHkrz5DSG1awTGgu5ICxJubV-qBdXIffWlkOmM4dKyM9zRNbT7qd77-84zk2XKvnEdgpqY7P_rEaopjSToNJS5vtoFEL9DfHdpClgpBIFSuA/Bez_imeni-1.jpg">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Карточка 5 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/03/Ozero-Mangup-350-450.jpg" alt="Озеро Мангуп" class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Озеро Мангуп</h3>
+                            <p class="card-description">Озеро Мангуп образовалось благодаря строительным работам  в 1982-1984 гг</p>
+                            <button class="card-button" data-url="https://psv4.userapi.com/s/v1/d/LSrXi6xaJlAHkrz5DSG1awTGgu5ICxJubV-qBdXIffWlkOmM4dKyM9zRNbT7qd77-84zk2XKvnEdgpqY7P_rEaopjSToNJS5vtoFEL9DfHdpClgpBIFSuA/Bez_imeni-1.jpg">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Карточка 6 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/03/Mangup-Kale-350-450.jpg" alt="Мангуп-Кале" class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Мангуп-Кале</h3>
+                            <p class="card-description">Пещерный город, где остались руины древних построек и следы прежней жизни</p>
+                            <button class="card-button" data-url="https://psv4.userapi.com/s/v1/d/LSrXi6xaJlAHkrz5DSG1awTGgu5ICxJubV-qBdXIffWlkOmM4dKyM9zRNbT7qd77-84zk2XKvnEdgpqY7P_rEaopjSToNJS5vtoFEL9DfHdpClgpBIFSuA/Bez_imeni-1.jpg">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Карточка 7 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/03/Sokolinoe-350-450.jpg" alt="Соколиное" class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Соколиное</h3>
+                            <p class="card-description">Место для активного отдыха и любителей горнолыжного и пешего туризма</p>
+                            <button class="card-button" data-url="https://psv4.userapi.com/s/v1/d/LSrXi6xaJlAHkrz5DSG1awTGgu5ICxJubV-qBdXIffWlkOmM4dKyM9zRNbT7qd77-84zk2XKvnEdgpqY7P_rEaopjSToNJS5vtoFEL9DfHdpClgpBIFSuA/Bez_imeni-1.jpg">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Карточка 8 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/03/Tepe-Kermen-350-450.jpg" alt="Тепе-Кермен" class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Тепе-Кермен</h3>
+                            <p class="card-description">Старинная крепость на горе с неплохо сохранившаяся пещерной церковью VIII века</p>
+                            <button class="card-button" data-url="https://psv4.userapi.com/s/v1/d/LSrXi6xaJlAHkrz5DSG1awTGgu5ICxJubV-qBdXIffWlkOmM4dKyM9zRNbT7qd77-84zk2XKvnEdgpqY7P_rEaopjSToNJS5vtoFEL9DfHdpClgpBIFSuA/Bez_imeni-1.jpg">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Карточка 9 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/03/Chufut-Kale-350-450.jpg" alt="Чуфут-Кале" class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Чуфут-Кале</h3>
+                            <p class="card-description">Поднебесный скальный пещерный город-крепость с красивым панорамным видом</p>
+                            <button class="card-button" data-url="https://psv4.userapi.com/s/v1/d/LSrXi6xaJlAHkrz5DSG1awTGgu5ICxJubV-qBdXIffWlkOmM4dKyM9zRNbT7qd77-84zk2XKvnEdgpqY7P_rEaopjSToNJS5vtoFEL9DfHdpClgpBIFSuA/Bez_imeni-1.jpg">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Карточка 10 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/03/Jeski-Kermen-350-450.jpg" alt="Эски-Кермен" class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Эски-Кермен</h3>
+                            <p class="card-description">Живой музей под открытым небом, город созданный человеком и природой</p>
+                            <button class="card-button" data-url="https://psv4.userapi.com/s/v1/d/LSrXi6xaJlAHkrz5DSG1awTGgu5ICxJubV-qBdXIffWlkOmM4dKyM9zRNbT7qd77-84zk2XKvnEdgpqY7P_rEaopjSToNJS5vtoFEL9DfHdpClgpBIFSuA/Bez_imeni-1.jpg">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Карточка 11 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/03/Shuldan-350-450.jpg" alt="Шулдан" class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Шулдан</h3>
+                            <p class="card-description">Действующий древний монастырь Христа Спасителя «Шулдан» XII-XIII вв</p>
+                            <button class="card-button" data-url="https://psv4.userapi.com/s/v1/d/LSrXi6xaJlAHkrz5DSG1awTGgu5ICxJubV-qBdXIffWlkOmM4dKyM9zRNbT7qd77-84zk2XKvnEdgpqY7P_rEaopjSToNJS5vtoFEL9DfHdpClgpBIFSuA/Bez_imeni-1.jpg">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Карточка 12 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/03/Bahchisaraj-350-450.jpg" alt="Бахчисарай" class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Бахчисарай</h3>
+                            <p class="card-description">Средневековая столица Крымских ханов, исторический памятник Крыма</p>
+                            <button class="card-button" data-url="https://psv4.userapi.com/s/v1/d/LSrXi6xaJlAHkrz5DSG1awTGgu5ICxJubV-qBdXIffWlkOmM4dKyM9zRNbT7qd77-84zk2XKvnEdgpqY7P_rEaopjSToNJS5vtoFEL9DfHdpClgpBIFSuA/Bez_imeni-1.jpg">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Карточка 13 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/03/Belaja-skala-350-450.jpg" alt="Белая скала" class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Белая скала</h3>
+                            <p class="card-description">Символ Белогорского района. Идеальное место для активного отдыха</p>
+                            <button class="card-button" data-url="https://psv4.userapi.com/s/v1/d/LSrXi6xaJlAHkrz5DSG1awTGgu5ICxJubV-qBdXIffWlkOmM4dKyM9zRNbT7qd77-84zk2XKvnEdgpqY7P_rEaopjSToNJS5vtoFEL9DfHdpClgpBIFSuA/Bez_imeni-1.jpg">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Карточка 14 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/03/Belekskaja-dolina-350-450.jpg" alt="Бельбекская долина" class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Бельбекская долина</h3>
+                            <p class="card-description">Обширная тисовая роща, известняковые скалы, скальные фигуры, пещеры и гроты</p>
+                            <button class="card-button" data-url="https://psv4.userapi.com/s/v1/d/LSrXi6xaJlAHkrz5DSG1awTGgu5ICxJubV-qBdXIffWlkOmM4dKyM9zRNbT7qd77-84zk2XKvnEdgpqY7P_rEaopjSToNJS5vtoFEL9DfHdpClgpBIFSuA/Bez_imeni-1.jpg">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Карточка 15 -->
+                <div class="card">
+                    <div class="card-image-container">
+                        <img src="https://travelrk.ru/wp-content/uploads/2025/03/Bolshoj-kanon-350-450.jpg" alt="Большой каньон" class="card-image">
+                        <div class="card-overlay">
+                            <h3 class="card-title">Большой каньон</h3>
+                            <p class="card-description">Природный памятник Крыма. Горные реки, зеркальные озера, завораживающие водопады</p>
+                            <button class="card-button" data-url="https://psv4.userapi.com/s/v1/d/LSrXi6xaJlAHkrz5DSG1awTGgu5ICxJubV-qBdXIffWlkOmM4dKyM9zRNbT7qd77-84zk2XKvnEdgpqY7P_rEaopjSToNJS5vtoFEL9DfHdpClgpBIFSuA/Bez_imeni-1.jpg">Смотреть</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Стрелки навигации -->
+            <button class="scroll-arrow prev central-prev">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="scroll-arrow next central-next">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+    </section>
+
+    <!-- Модальное окно -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-container">
+            <button class="close-modal">
+                <i class="fas fa-times"></i>
+            </button>
+            <iframe class="modal-content" id="modalFrame" frameborder="0"></iframe>
+        </div>
     </div>
-  </div>
 
-  <main>
-    <div class="card-wrapper">
-      <button class="scroll-button scroll-left" onclick="scrollCards(-1)">‹</button>
-      <div class="card-container" id="cards"></div>
-      <button class="scroll-button scroll-right" onclick="scrollCards(1)">›</button>
-    </div>
-  </main>
+    <script>
+        // Инициализация элементов
+        const modalOverlay = document.getElementById('modalOverlay');
+        const modalFrame = document.getElementById('modalFrame');
+        const closeBtn = document.querySelector('.close-modal');
+        const cardButtons = document.querySelectorAll('.card-button');
 
-  <script>
-    const cardsData = [
-      {
-        title: 'Южный Крым',
-        description: 'Южный Крым – рай с горами, морем и солнцем.',
-        image: 'https://travelrk.ru/wp-content/uploads/2025/03/Gurzuf-350-450.jpg'
-      },
-      {
-        title: 'Западный Крым',
-        description: 'Скалистые берега Тарханкута и длинные пляжи Беляуса.',
-        image: 'https://travelrk.ru/wp-content/uploads/2023/12/PANO0031-2048x1152.jpg'
-      },
-      {
-        title: 'Восточный Крым',
-        description: 'Горы, море, заповедники и древние города.',
-        image: 'https://travelrk.ru/wp-content/uploads/2024/12/Koktebel-1-4-1.jpg'
-      },
-      {
-        title: 'Центральный Крым',
-        description: 'Белая скала, родники и древние крепости.',
-        image: 'https://travelrk.ru/wp-content/uploads/2024/12/Belaja-skala3.jpg'
-      }
-    ];
+        // Функция для открытия модального окна
+        function openModal(url) {
+            modalFrame.src = url;
+            modalOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
 
-    const cardsContainer = document.getElementById('cards');
+        // Функция для закрытия модального окна
+        function closeModal() {
+            modalOverlay.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
 
-    cardsData.forEach(({ title, description, image }) => {
-      const card = document.createElement('div');
-      card.className = 'card';
-      card.innerHTML = `
-        <img src="${image}" alt="${title}" loading="lazy" />
-        <div class="card-title">${title}</div>
-        <div class="card-description">${description}</div>
-        <button class="custom-button">
-          <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-          Подробнее
-        </button>
-      `;
-      cardsContainer.appendChild(card);
-    });
+        // Обработчики событий для кнопок "Смотреть"
+        cardButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                openModal(this.dataset.url);
+            });
+        });
 
-    function scrollCards(direction) {
-      const scrollAmount = 270;
-      cardsContainer.scrollBy({ left: scrollAmount * direction, behavior: 'smooth' });
+        // Закрытие по кнопке
+        closeBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            closeModal();
+        });
+
+        // Закрытие по ESC
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && modalOverlay.classList.contains('active')) {
+                closeModal();
+            }
+        });
+
+        // Навигация стрелками для всех секций
+        function setupScrollArrows(scrollContainerId, prevBtnClass, nextBtnClass) {
+            const scrollContainer = document.getElementById(scrollContainerId);
+            const prevBtn = document.querySelector(prevBtnClass);
+            const nextBtn = document.querySelector(nextBtnClass);
+
+            prevBtn.addEventListener('click', () => {
+                scrollContainer.scrollBy({ left: -350, behavior: 'smooth' });
+            });
+
+            nextBtn.addEventListener('click', () => {
+                scrollContainer.scrollBy({ left: 350, behavior: 'smooth' });
+            });
+        }
+
+        // Инициализация навигации для всех секций
+        setupScrollArrows('westCardsScroll', '.west-prev', '.west-next');
+        setupScrollArrows('southCardsScroll', '.south-prev', '.south-next');
+        setupScrollArrows('eastCardsScroll', '.east-prev', '.east-next');
+        setupScrollArrows('centralCardsScroll', '.central-prev', '.central-next');
+
+        // Свайп для мобильных устройств (общий для всех контейнеров)
+        function setupSwipe(containerId) {
+            const container = document.getElementById(containerId);
+            let isDown = false;
+            let startX;
+            let scrollLeft;
+            let animationFrame;
+            let targetScroll;
+
+            const smoothScroll = () => {
+                const diff = targetScroll - container.scrollLeft;
+                if (Math.abs(diff) > 1) {
+                    container.scrollLeft += diff * 0.1;
+                    animationFrame = requestAnimationFrame(smoothScroll);
+                }
+            };
+
+            // Обработчики мыши
+            container.addEventListener('mousedown', (e) => {
+                isDown = true;
+                startX = e.pageX - container.offsetLeft;
+                scrollLeft = container.scrollLeft;
+                cancelAnimationFrame(animationFrame);
+            });
+
+            container.addEventListener('mouseleave', () => {
+                isDown = false;
+                targetScroll = container.scrollLeft;
+                animationFrame = requestAnimationFrame(smoothScroll);
+            });
+
+            container.addEventListener('mouseup', () => {
+                isDown = false;
+                targetScroll = container.scrollLeft;
+                animationFrame = requestAnimationFrame(smoothScroll);
+            });
+
+            container.addEventListener('mousemove', (e) => {
+                if (!isDown) return;
+                e.preventDefault();
+                const x = e.pageX - container.offsetLeft;
+                const walk = (x - startX) * 2;
+                targetScroll = scrollLeft - walk;
+                container.scrollLeft = targetScroll;
+            });
+
+            // Обработчики касания
+            container.addEventListener('touchstart', (e) => {
+                isDown = true;
+                startX = e.touches[0].pageX - container.offsetLeft;
+                scrollLeft = container.scrollLeft;
+                cancelAnimationFrame(animationFrame);
+            });
+
+            container.addEventListener('touchend', () => {
+                isDown = false;
+                targetScroll = container.scrollLeft;
+                animationFrame = requestAnimationFrame(smoothScroll);
+            });
+
+            container.addEventListener('touchmove', (e) => {
+                if (!isDown) return;
+                e.preventDefault();
+                const x = e.touches[0].pageX - container.offsetLeft;
+                const walk = (x - startX) * 2;
+                targetScroll = scrollLeft - walk;
+                container.scrollLeft = targetScroll;
+            });
+        }
+
+        // Инициализация свайпа для всех контейнеров
+        setupSwipe('westCardsScroll');
+        setupSwipe('southCardsScroll');
+        setupSwipe('eastCardsScroll');
+        setupSwipe('centralCardsScroll');
+    </script>
+
+	<script>
+    function openLink(url) {
+      vkBridge.send('VKWebAppOpenLink', { url: url });
     }
-  </script>
+	</script>
 </body>
 </html>
